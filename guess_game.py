@@ -6,9 +6,9 @@ st.set_page_config(page_title="🎯 Guess the Number", page_icon="🎲", layout=
 
 # Header
 st.markdown("<h1 style='text-align:center;'>🎮 Guess the Number Game</h1>", unsafe_allow_html=True)
-st.markdown("### ➡️ Use `Tab` + `Enter` to play without mouse. Enter number & press Enter.")
+st.markdown("### 🔧 Type a number and click the button or press Enter to guess.")
 
-# Function to play sound
+# Function to play sound (online source)
 def play_sound(url):
     st.markdown(
         f"""
@@ -21,22 +21,18 @@ def play_sound(url):
 
 # Reset the game
 def reset_game():
-    st.session_state.clear()
-    st.experimental_rerun()
-
-# Initialize session state
-if "secret" not in st.session_state:
     st.session_state.secret = random.randint(1, 10)
     st.session_state.tries = 0
     st.session_state.play_again = False
 
+# Initialize session state if needed
+if "secret" not in st.session_state:
+    reset_game()
+
 # Game logic
 if not st.session_state.play_again:
-    with st.form("guess_form", clear_on_submit=True):
-        guess = st.number_input("🔢 Enter a number between 1 and 10:", min_value=1, max_value=10, step=1)
-        submitted = st.form_submit_button("🎯 Guess (Tab + Enter)")
-
-    if submitted:
+    guess = st.number_input("Enter a number between 1 and 10:", min_value=1, max_value=10, step=1, key="guess")
+    if st.button("🎯 Guess"):
         st.session_state.tries += 1
         if guess == st.session_state.secret:
             st.success(f"✅ Correct! The number was {st.session_state.secret}")
@@ -50,13 +46,12 @@ if not st.session_state.play_again:
             st.warning("📈 Too high! Try again.")
             play_sound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg")
 
-# Play Again section
+# Play again button (separate key to avoid rerun loop)
 if st.session_state.play_again:
-    with st.form("restart_form"):
-        restart = st.form_submit_button("🔁 Play Again (Tab + Enter)")
-        if restart:
-            play_sound("https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg")
-            reset_game()
+    if st.button("🔁 Play Again"):
+        play_sound("https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg")
+        reset_game()
+        st.experimental_rerun()
 
 # Footer credits
 st.markdown("---")
