@@ -8,7 +8,7 @@ st.set_page_config(page_title="Guess the Number", page_icon="🎯", layout="cent
 st.markdown("<h1 style='text-align: center;'>🎮 Guess the Number Game</h1>", unsafe_allow_html=True)
 st.markdown("### Press `Tab + Enter` to guess without using your mouse.")
 
-# Sound function using HTML
+# Function to play sounds via HTML
 def play_sound(url):
     st.markdown(
         f"""
@@ -19,11 +19,15 @@ def play_sound(url):
         unsafe_allow_html=True
     )
 
-# Initialize session state
-if "secret" not in st.session_state:
+# Reset game function
+def reset_game():
     st.session_state.secret = random.randint(1, 10)
     st.session_state.tries = 0
     st.session_state.play_again = False
+
+# Initialize game state
+if "secret" not in st.session_state:
+    reset_game()
 
 # Game form
 with st.form("guess_form", clear_on_submit=True):
@@ -45,14 +49,12 @@ if submitted:
         st.warning("📈 Too high! Try again.")
         play_sound("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg")
 
-# Play Again button
+# Play Again logic
 if st.session_state.play_again:
     if st.button("🔁 Play Again"):
-        st.session_state.secret = random.randint(1, 10)
-        st.session_state.tries = 0
-        st.session_state.play_again = False
+        reset_game()
         play_sound("https://actions.google.com/sounds/v1/cartoon/slide_whistle_to_drum_hit.ogg")
-        st.experimental_rerun()
+        st.experimental_set_query_params()  # Just triggers UI update
 
 # Footer
 st.markdown("---")
